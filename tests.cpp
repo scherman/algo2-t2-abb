@@ -48,6 +48,8 @@ void test_remover() {
 
 	// caso que chequea borrar una hoja
 	c.remover(44);
+    c.remover(-46);
+    c.remover(43);
 	pertenencia = c.pertenece(42) && !c.pertenece(44) && c.pertenece(104)
 				  && c.pertenece(450) && c.pertenece(-46) && c.pertenece(-460)
 				  && c.pertenece(130) && c.pertenece(43);
@@ -72,7 +74,7 @@ int main() {
 
 	RUN_TEST(test_insertar);
 	RUN_TEST(test_cardinal);
-//	RUN_TEST(test_remover);
+	RUN_TEST(test_remover);
 //	RUN_TEST(test_maximo);
 //	RUN_TEST(test_minimo);
 	return 0;
