@@ -127,17 +127,16 @@ bool Conjunto<T>::pertenece(const T &clave) const {
 
 template<class T>
 void Conjunto<T>::insertar(const T &clave) {
-    Nodo *nuevoElemento = new Nodo(clave);
     Nodo *padre = raiz_;
     if (padre == NULL) {
-        raiz_ = nuevoElemento;
+        raiz_ = new Nodo(clave);
         cardinal_++;
     }
     while (padre != NULL) {
         if (clave == padre->valor) return;
         if (clave > padre->valor) {
             if (padre->der == NULL) {
-                padre->der = nuevoElemento;
+                padre->der = new Nodo(clave);
                 cardinal_++;
                 break;
             } else {
@@ -145,7 +144,7 @@ void Conjunto<T>::insertar(const T &clave) {
             }
         } else {
             if (padre->izq == NULL) {
-                padre->izq = nuevoElemento;
+                padre->izq = new Nodo(clave);
                 cardinal_++;
                 break;
             } else {
