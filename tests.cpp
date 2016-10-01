@@ -68,6 +68,7 @@ void test_maximo() {
     c.insertar(130);
     c.insertar(43);
 	ASSERT(c.maximo() == 450);
+    c.mostrar(std::cout);
 }
 
 void test_minimo() {

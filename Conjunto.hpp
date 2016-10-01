@@ -73,6 +73,7 @@ private:
 
     void desengancharHoja(Nodo *padre, Nodo *hoja);
     void saltearNodo(Nodo *padre, Nodo *nodo);
+    void inOrder(std::ostream &os, Nodo *nodo) const;
 
     /*
      * Dado un T cualquiera, devuelve:
@@ -240,7 +241,9 @@ const T &Conjunto<T>::maximo() const {
 
 template<class T>
 void Conjunto<T>::mostrar(std::ostream &os) const {
-    std::cout << "";
+    os << "{";
+    inOrder(os, raiz_);
+    os << "}";
 }
 
 template<class T>
@@ -325,7 +328,18 @@ void Conjunto<T>::desengancharHoja(typename Conjunto<T>::Nodo *padre, typename C
     }
 }
 
-
-//}
+template<class T>
+void Conjunto<T>::inOrder(std::ostream &os, typename Conjunto<T>::Nodo *nodo) const{
+    if (nodo == NULL) return;
+    if (nodo->izq != NULL) {
+        inOrder(os, nodo->izq);
+        os << ", ";
+    }
+    os << nodo->valor;
+    if (nodo->der != NULL) {
+        os << ", ";
+        inOrder(os, nodo->der);
+    }
+}
 
 #endif // CONJUNTO_HPP_
