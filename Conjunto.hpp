@@ -50,6 +50,8 @@ private:
         // el constructor, toma el elemento al que representa el nodo.
         Nodo(const T &v);
 
+        ~Nodo();
+
         // el elemento al que representa el nodo.
         T valor;
         // puntero a la raíz del subárbol izq.
@@ -98,10 +100,18 @@ Conjunto<T>::Nodo::Nodo(const T &v)
         : valor(v), izq(NULL), der(NULL) {}
 
 template<class T>
+Conjunto<T>::Nodo::~Nodo(){
+    delete der;
+    delete izq;
+}
+
+
+template<class T>
 Conjunto<T>::Conjunto() : raiz_(NULL), cardinal_(0) {}
 
 template<class T>
 Conjunto<T>::~Conjunto() {
+    delete raiz_;
 }
 
 template<class T>
@@ -155,9 +165,6 @@ unsigned int Conjunto<T>::cardinal() const {
 
 template<class T>
 void Conjunto<T>::remover(const T &clave) {
-    // Busco el padre del nodo a eliminar. Si la clave no esta en el arbol no hago nada.
-//    Nodo* padre = &nodoPadre(*raiz_, clave, false);
-
     // Busco el nodo a eliminar y su padre. Si el nodo a buscar es NULL no hago nada.
     Nodo *padre = raiz_;
     Nodo *actual = NULL;
@@ -193,8 +200,6 @@ void Conjunto<T>::remover(const T &clave) {
             delete actual;
             break;
         case 2:
-            // Nodo* min = nodoMinimo(*(padre->der));
-
             // Busco min en el subarbol derecho y lo pongo en actual
             Nodo *minPadre = actual;
             Nodo *min = minPadre->der;
@@ -217,7 +222,11 @@ void Conjunto<T>::remover(const T &clave) {
 
 template<class T>
 const T &Conjunto<T>::minimo() const {
-    return nodoMinimo(raiz_).valor;
+    Nodo* min = raiz_;
+    while(min != NULL) {
+        if (min->izq == NULL) return min->valor;
+        min = min->izq;
+    }
 }
 
 template<class T>
@@ -227,7 +236,6 @@ const T &Conjunto<T>::maximo() const {
         if (max->der == NULL) return max->valor;
         max = max->der;
     }
-    return 0; // Si llega aca es porque el arbol es nil
 }
 
 template<class T>
@@ -284,18 +292,22 @@ void Conjunto<T>::saltearNodo(typename Conjunto<T>::Nodo *padre, typename Conjun
         if (nodo->der != NULL) {
             // el hijo de nodo esta del lado derecho
             padre->der = nodo->der;
+            nodo->der = NULL;
         } else {
             // el hijo de nodo esta del lado izquierdo
             padre->der = nodo->izq;
+            nodo->izq = NULL;
         }
     } else {
         // nodo esta a la izquierda de su padre
         if (nodo->der != NULL) {
             // el hijo de nodo esta del lado derecho
             padre->izq = nodo->der;
+            nodo->der = NULL;
         } else {
             // el hijo de nodo esta del lado izquierdo
             padre->izq = nodo->izq;
+            nodo->izq = NULL;
         }
     }
 }
