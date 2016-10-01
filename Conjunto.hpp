@@ -71,28 +71,24 @@ private:
      */
     const int cantHijos(const Nodo *nodo) const;
 
+    /*
+     * Desengancha 'hoja' de su padre
+     * Requiere padre != NULL
+     * Requiere 'hoja' es hijo directo de padre
+     */
     void desengancharHoja(Nodo *padre, Nodo *hoja);
+
+    /*
+     * Engancha al padre con alguno de los hijos de nodo en lugar de el.
+     * Requiere padre != NULL
+     * Requiere 'nodo' es hijo directo de padre
+     */
     void saltearNodo(Nodo *padre, Nodo *nodo);
+
+    /*
+     * Imprime en pantalla recursivamente a partir de un nodo.
+     */
     void inOrder(std::ostream &os, Nodo *nodo) const;
-
-    /*
-     * Dado un T cualquiera, devuelve:
-     * - Si pertenece al arbol, el nodo padre al nodo cuyo elemento es T
-     * - Si no pertenece al arbol:
-     * -- Si el flag "engancharse" es true, el nodo padre al cual se engancharia.
-     * -- Si el flag "engancharse" es false, NULL.
-     * Si el arbol es nil, devuelve NULL.
-     */
-//    Nodo & nodoPadre(const Nodo & raiz, const T & clave, const bool engancharse) const;
-
-    /*
-     * Requiere que el arbol tenga, al menos, un elemento.
-     * Dado un T, devuelve el nodo cuyo valor es T.
-     */
-//    Nodo * nodoMinimo(const Nodo & raiz) const;
-
-
-//    const std::vector inOrder(const T&) const;
 
 };
 
@@ -254,40 +250,7 @@ const int Conjunto<T>::cantHijos(const Nodo *nodo) const {
     return cont;
 }
 
-//template <class T>
-//typename Conjunto<T>::Nodo & Conjunto<T>::nodoPadre(const Conjunto<T>::Nodo & raiz, const T & clave, const bool enganchar) const {
-//    Nodo* actual = raiz_;
-//    if (cardinal() <= 1) return &actual;
-//    while(actual != NULL) {
-//        if (clave > actual->valor) {
-//            // O lo encontre/ubique, o sigo recorriendo
-//            if ((actual->der == NULL) && enganchar) return actual;
-//            if (clave == actual->der->valor) return actual;
-//            actual = actual->der;
-//        } else {
-//            // O lo encontre/ubique, o sigo recorriendo
-//            if ((actual->izq== NULL) && enganchar) return actual;
-//            if (clave == actual->izq->valor) return actual;
-//            actual = actual->izq;
-//        }
-//    }
-//    return actual;
-//}
 
-//template <class T>
-//typename Conjunto<T>::Nodo & Conjunto<T>::nodoMinimo(const Conjunto<T>::Nodo & raiz) const {
-//    Nodo* min = raiz;
-//    while(min != NULL) {
-//        if (min->izq == NULL) return min;
-//        min = min->izq;
-//    }
-//    return NULL; // Si llega aca es porque el arbol es nil
-//}
-//const std::vector inOrder(const T&) const; {
-////    std::vector<T> v;
-////    return array;
-// Requiere padre != NULL
-// Requiere nodo es hijo directo de padre
 template<class T>
 void Conjunto<T>::saltearNodo(typename Conjunto<T>::Nodo *padre, typename Conjunto<T>::Nodo *nodo) {
     if ((padre->der != NULL) && (padre->der->valor == nodo->valor)) {
