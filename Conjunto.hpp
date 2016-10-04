@@ -66,6 +66,15 @@ private:
 
     // funciones auxiliares
 
+
+    /*
+     * Ubica al nodo cuyo valor es 'clave' y devuelve a su padre
+     * Si la clave no existe y 'enganchar' es true, devuelve al padre al cual se engancharía.
+     * Si la clave no existe y 'enganchar' es false, devuelve NULL.
+     * Si el arbol es nil, devuelve NULL.
+     */
+    Nodo* nodoPadre(const T& clave, const bool enganchar) const;
+
     /*
      * Dado un nodo, devuelve un 0 <= m <= 2 que representa la cantidad de hijos.
      */
@@ -77,6 +86,13 @@ private:
      * Requiere 'hoja' es hijo directo de padre
      */
     void desengancharHoja(Nodo *padre, Nodo *hoja);
+
+    /*
+     * Engancha 'hoja' con su padre
+     * Requiere padre, hoja != NULL
+     * Requiere padre->valor != hoja->valor
+     */
+    void engancharHoja(Nodo *padre, Nodo *hoja);
 
     /*
      * Engancha al padre con alguno de los hijos de nodo en lugar de el.
@@ -127,31 +143,18 @@ bool Conjunto<T>::pertenece(const T &clave) const {
 
 template<class T>
 void Conjunto<T>::insertar(const T &clave) {
-    Nodo *padre = raiz_;
+    Nodo *padre = nodoPadre(clave, true);
     if (padre == NULL) {
+        // El arbol es nil
         raiz_ = new Nodo(clave);
-        cardinal_++;
+    } else {
+        // Si la clave existe, no hago nada
+        if ( (padre->der != NULL) && (padre->der->valor == clave) ) return;
+        if ( (padre->izq != NULL) && (padre->izq->valor == clave) ) return;
+
+        engancharHoja(padre, new Nodo(clave));
     }
-    while (padre != NULL) {
-        if (clave == padre->valor) return;
-        if (clave > padre->valor) {
-            if (padre->der == NULL) {
-                padre->der = new Nodo(clave);
-                cardinal_++;
-                break;
-            } else {
-                padre = padre->der;
-            }
-        } else {
-            if (padre->izq == NULL) {
-                padre->izq = new Nodo(clave);
-                cardinal_++;
-                break;
-            } else {
-                padre = padre->izq;
-            }
-        }
-    }
+    cardinal_++;
 }
 
 template<class T>
@@ -161,29 +164,10 @@ unsigned int Conjunto<T>::cardinal() const {
 
 template<class T>
 void Conjunto<T>::remover(const T &clave) {
-    // Busco el nodo a eliminar y su padre. Si el nodo a buscar es NULL no hago nada.
-    Nodo *padre = raiz_;
-    Nodo *actual = NULL;
+    // Busco el nodo a eliminar y su padre.
+    Nodo *padre = nodoPadre(clave, false);
     if (padre == NULL) return;
-    while (padre != NULL) {
-        if (clave > padre->valor) {
-            if (padre->der == NULL) return;
-            if (clave == padre->der->valor) {
-                actual = padre->der;
-                break;
-            }
-            padre = padre->der;
-        } else if (clave < padre->valor) {
-            if (padre->izq == NULL) return;
-            if (clave == padre->izq->valor) {
-                actual = padre->izq;
-                break;
-            }
-            padre = padre->izq;
-        } else if (clave == padre->valor) {
-            actual = padre->der;
-        }
-    }
+    Nodo *actual = clave > padre->valor ? padre->der : padre->izq;
 
     // Borro el nodo mediante el algoritmo correspondiente.
     switch (cantHijos(actual)) {
@@ -242,10 +226,35 @@ void Conjunto<T>::mostrar(std::ostream &os) const {
 }
 
 template<class T>
+typename Conjunto<T>::Nodo* Conjunto<T>::nodoPadre(const T& clave, const bool enganchar) const {
+    Nodo* padre = raiz_;
+    while (padre != NULL) {
+        if (clave > padre->valor) {
+            if (padre->der == NULL) {
+                // La clave no existe
+                if (enganchar) return padre;
+                return NULL;
+            }
+            if (clave == padre->der->valor) return padre; // Encontre el nodo
+            padre = padre->der;
+        } else if (clave < padre->valor) {
+            if (padre->izq == NULL) {
+                // La clave no existe
+                if (enganchar) return padre;
+                return NULL;
+            }
+            if (clave == padre->izq->valor) return padre; // Encontre el nodo
+            padre = padre->izq;
+        }
+    }
+    return NULL;
+}
+
+
+template<class T>
 const int Conjunto<T>::cantHijos(const Nodo *nodo) const {
     int cont = 0;
-    if (nodo->izq != NULL) cont++;
-    if (nodo->der != NULL) cont++;
+    if ( (nodo->izq != NULL) || (nodo->der != NULL) ) cont++;
     return cont;
 }
 
@@ -280,7 +289,6 @@ void Conjunto<T>::saltearNodo(typename Conjunto<T>::Nodo *padre, typename Conjun
 
 template<class T>
 void Conjunto<T>::desengancharHoja(typename Conjunto<T>::Nodo *padre, typename Conjunto<T>::Nodo *hoja) {
-    // Eliminar hoja
     if ((padre->der != NULL) && (padre->der->valor == hoja->valor)) {
         // actual esta a la derecha de su padre
         padre->der = NULL;
@@ -289,6 +297,19 @@ void Conjunto<T>::desengancharHoja(typename Conjunto<T>::Nodo *padre, typename C
         padre->izq = NULL;
     }
 }
+
+template<class T>
+void Conjunto<T>::engancharHoja(typename Conjunto<T>::Nodo *padre, typename Conjunto<T>::Nodo *hoja) {
+    if (hoja->valor > padre->valor) {
+        // Hoja debe ubicarse del lado derecho de su padre
+        padre->der = hoja;
+    } else {
+        // Hoja debe ubicarse del lado izquierdo de su padre
+        padre->izq = hoja;
+    }
+}
+
+
 
 template<class T>
 void Conjunto<T>::inOrder(std::ostream &os, typename Conjunto<T>::Nodo *nodo) const{
