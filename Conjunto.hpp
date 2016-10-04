@@ -106,6 +106,14 @@ private:
      */
     void inOrder(std::ostream &os, Nodo *nodo) const;
 
+    /*
+     * Devuelve true si nodo es hijo de padre.
+     * Requiere que nodo != NULL
+     * Si padre es null, devuelve false
+     */
+    bool esHijo(const Nodo* padre, const T& clave) const;
+
+
 };
 
 template<class T>
@@ -148,10 +156,7 @@ void Conjunto<T>::insertar(const T &clave) {
         // El arbol es nil
         raiz_ = new Nodo(clave);
     } else {
-        // Si la clave existe, no hago nada
-        if ( (padre->der != NULL) && (padre->der->valor == clave) ) return;
-        if ( (padre->izq != NULL) && (padre->izq->valor == clave) ) return;
-
+        if (esHijo(padre, clave)) return;
         engancharHoja(padre, new Nodo(clave));
     }
     cardinal_++;
@@ -323,6 +328,13 @@ void Conjunto<T>::inOrder(std::ostream &os, typename Conjunto<T>::Nodo *nodo) co
         os << ", ";
         inOrder(os, nodo->der);
     }
+}
+
+template<class T>
+bool Conjunto<T>::esHijo(const typename Conjunto<T>::Nodo *padre, const T &clave) const{
+    if (padre == NULL) return false;
+    if ( (padre->der != NULL) && (padre->der->valor == clave) ) return true;
+    if ( (padre->izq != NULL) && (padre->izq->valor == clave) ) return true;
 }
 
 #endif // CONJUNTO_HPP_
