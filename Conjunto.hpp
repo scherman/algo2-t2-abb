@@ -84,21 +84,18 @@ private:
 
     /*
      * Desengancha 'hoja' de su padre
-     * Requiere padre != NULL
      * Requiere 'hoja' es hijo directo de padre
      */
     void desengancharHoja(Nodo *padre, Nodo *hoja);
 
     /*
      * Engancha 'hoja' con su padre
-     * Requiere padre, hoja != NULL
      * Requiere padre->valor != hoja->valor
      */
     void engancharHoja(Nodo *padre, Nodo *hoja);
 
     /*
      * Engancha al padre con alguno de los hijos de nodo en lugar de el.
-     * Requiere padre != NULL
      * Requiere 'nodo' es hijo directo de padre
      */
     void saltearNodo(Nodo *padre, Nodo *nodo);
@@ -124,8 +121,8 @@ Conjunto<T>::Nodo::Nodo(const T &v)
 
 template<class T>
 Conjunto<T>::Nodo::~Nodo(){
-    delete der; // No hace falta preguntar si es null
-    delete izq; // No hace falta preguntar si es null
+    delete der;
+    delete izq;
 }
 
 
@@ -139,26 +136,22 @@ Conjunto<T>::~Conjunto() {
 
 template<class T>
 bool Conjunto<T>::pertenece(const T &clave) const {
-    Nodo *actual = raiz_;
-    while (actual != NULL) {
-        if (clave == actual->valor) return true;
-        if (clave > actual->valor) {
-            actual = actual->der;
-        } else {
-            actual = actual->izq;
-        }
-    }
-    return false;
+    if (raiz_ == NULL) return false;
+    if (raiz_->valor == clave) return true;
+    Nodo* padre = nodoPadre(clave, false);
+    return padre != NULL;
 }
 
 template<class T>
 void Conjunto<T>::insertar(const T &clave) {
-    Nodo *padre = nodoPadre(clave, true);
-    if (padre == NULL) {
-        // El arbol es nil
-        raiz_ = new Nodo(clave);
+    if (raiz_ == NULL) {
+        raiz_ = new Nodo(clave); // Si el arbol es nil, lo pongo como raiz
     } else {
-        if (esHijo(padre, clave)) return;
+        if (raiz_->valor == clave) return; // Si la raiz es la clave, no hago nada
+
+        // Busco el padre al cual engancharlo
+        Nodo *padre = nodoPadre(clave, true);
+        if (esHijo(padre, clave)) return; // Si es hijo del padre, entonces ya existia. No hago nada
         Nodo* nuevo = new Nodo(clave);
         engancharHoja(padre, nuevo);
     }
@@ -172,17 +165,18 @@ unsigned int Conjunto<T>::cardinal() const {
 
 template<class T>
 void Conjunto<T>::remover(const T &clave) {
-    // Busco el nodo a eliminar y su padre.
     if (raiz_ == NULL) return;
+
+    // Busco el nodo cuyo valor es 'clave' y su padre
+    Nodo *padre, *actual;
     if (raiz_->valor == clave) {
-        delete raiz_;
-        raiz_ = NULL;
-        cardinal_--;
-        return;
+        padre = NULL;
+        actual = raiz_;
+    } else {
+        padre = nodoPadre(clave, false);
+        if (padre == NULL) return; // No existe la clave
+        actual = clave > padre->valor ? padre->der : padre->izq;
     }
-    Nodo *padre = nodoPadre(clave, false);
-    if (padre == NULL) return; // La clave no existe
-    Nodo *actual = clave > padre->valor ? padre->der : padre->izq;
 
     // Borro el nodo mediante el algoritmo correspondiente.
     switch (cantHijos(actual)) {
@@ -260,6 +254,8 @@ typename Conjunto<T>::Nodo* Conjunto<T>::nodoPadre(const T& clave, const bool en
             }
             if (clave == padre->izq->valor) return padre; // Encontre el nodo
             padre = padre->izq;
+        } else if (clave == padre->valor){
+            return NULL;
         }
     }
     return NULL;
@@ -269,34 +265,49 @@ typename Conjunto<T>::Nodo* Conjunto<T>::nodoPadre(const T& clave, const bool en
 template<class T>
 const int Conjunto<T>::cantHijos(const Nodo *nodo) const {
     int cont = 0;
-    if ( (nodo->izq != NULL) || (nodo->der != NULL) ) cont++;
+    if (nodo->izq != NULL) cont++;
+    if (nodo->der != NULL) cont++;
     return cont;
 }
 
 
 template<class T>
 void Conjunto<T>::saltearNodo(typename Conjunto<T>::Nodo *padre, typename Conjunto<T>::Nodo *nodo) {
-    if ((padre->der != NULL) && (padre->der->valor == nodo->valor)) {
-        // nodo esta a la derecha de su padre
+    if (nodo == NULL) return;
+    if (padre == NULL) {
+        // Nodo es raiz, entonces el hijo pasa a ser raiz
         if (nodo->der != NULL) {
             // el hijo de nodo esta del lado derecho
-            padre->der = nodo->der;
+            raiz_ = nodo->der;
             nodo->der = NULL;
         } else {
             // el hijo de nodo esta del lado izquierdo
-            padre->der = nodo->izq;
+            raiz_  = nodo->izq;
             nodo->izq = NULL;
         }
     } else {
-        // nodo esta a la izquierda de su padre
-        if (nodo->der != NULL) {
-            // el hijo de nodo esta del lado derecho
-            padre->izq = nodo->der;
-            nodo->der = NULL;
+        if ((padre->der != NULL) && (padre->der->valor == nodo->valor)) {
+            // nodo esta a la derecha de su padre
+            if (nodo->der != NULL) {
+                // el hijo de nodo esta del lado derecho
+                padre->der = nodo->der;
+                nodo->der = NULL;
+            } else {
+                // el hijo de nodo esta del lado izquierdo
+                padre->der = nodo->izq;
+                nodo->izq = NULL;
+            }
         } else {
-            // el hijo de nodo esta del lado izquierdo
-            padre->izq = nodo->izq;
-            nodo->izq = NULL;
+            // nodo esta a la izquierda de su padre
+            if (nodo->der != NULL) {
+                // el hijo de nodo esta del lado derecho
+                padre->izq = nodo->der;
+                nodo->der = NULL;
+            } else {
+                // el hijo de nodo esta del lado izquierdo
+                padre->izq = nodo->izq;
+                nodo->izq = NULL;
+            }
         }
     }
 }
@@ -304,24 +315,38 @@ void Conjunto<T>::saltearNodo(typename Conjunto<T>::Nodo *padre, typename Conjun
 
 template<class T>
 void Conjunto<T>::desengancharHoja(typename Conjunto<T>::Nodo *padre, typename Conjunto<T>::Nodo *hoja) {
-    if ((padre->der != NULL) && (padre->der->valor == hoja->valor)) {
-        // actual esta a la derecha de su padre
-        padre->der = NULL;
+    if (hoja == NULL) return;
+    if (padre == NULL) {
+        // Hoja es raiz
+        raiz_ = NULL;
     } else {
-        // actual esta a la derecha de su padre
-        padre->izq = NULL;
+        if ((padre->der != NULL) && (padre->der->valor == hoja->valor)) {
+            // actual esta a la derecha de su padre
+            padre->der = NULL;
+        } else {
+            // actual esta a la derecha de su padre
+            padre->izq = NULL;
+        }
     }
+
 }
 
 template<class T>
 void Conjunto<T>::engancharHoja(typename Conjunto<T>::Nodo *padre, typename Conjunto<T>::Nodo *hoja) {
-    if (hoja->valor > padre->valor) {
-        // Hoja debe ubicarse del lado derecho de su padre
-        padre->der = hoja;
+    if (hoja == NULL) return;
+    if (padre == NULL) {
+        // Hoja va a ser la raiz
+        raiz_ = hoja;
     } else {
-        // Hoja debe ubicarse del lado izquierdo de su padre
-        padre->izq = hoja;
+        if (hoja->valor > padre->valor) {
+            // Hoja debe ubicarse del lado derecho de su padre
+            padre->der = hoja;
+        } else {
+            // Hoja debe ubicarse del lado izquierdo de su padre
+            padre->izq = hoja;
+        }
     }
+
 }
 
 

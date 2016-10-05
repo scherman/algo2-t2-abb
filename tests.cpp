@@ -37,6 +37,12 @@ void test_remover() {
     Conjunto<int> b;
     b.remover(44);
     b.remover(42);
+    ASSERT(b.cardinal() == 0);
+    b.insertar(5);
+    b.insertar(7);
+    b.insertar(3);
+    b.remover(5);
+    ASSERT(!(b.pertenece(5)) && (b.cardinal() == 2))
 
     Conjunto<int> a;
     a.insertar(42);
@@ -78,8 +84,9 @@ void test_maximo() {
     c.insertar(-460);
     c.insertar(130);
     c.insertar(43);
-	ASSERT(c.maximo() == 450);
     c.mostrar(std::cout);
+    int max = c.maximo();
+    ASSERT(max == 450) ;
 }
 
 void test_minimo() {
@@ -92,16 +99,17 @@ void test_minimo() {
     c.insertar(-460);
     c.insertar(130);
     c.insertar(43);
+    int min = c.minimo();
     ASSERT(c.minimo() == -460);
 }
 void test_mleak() {
     // Corriendo valgrind al final de cada instruccion:
     Conjunto<int> c; // total heap usage: 2 allocs, 1 frees, 73,728 bytes allocated
-    c.insertar(2); // total heap usage: 3 allocs, 2 frees, 73,752 bytes allocated
-    c.insertar(5); // total heap usage: 4 allocs, 3 frees, 73,776 bytes allocated
-    c.remover(2); // total heap usage: 4 allocs, 3 frees, 73,776 bytes allocated
-    c.remover(5); // total heap usage: 4 allocs, 3 frees, 73,776 bytes allocated
-    c.remover(1); // total heap usage: 4 allocs, 3 frees, 73,776 bytes allocated
+//    c.insertar(2); // total heap usage: 3 allocs, 2 frees, 73,752 bytes allocated
+//    c.insertar(5); // total heap usage: 4 allocs, 3 frees, 73,776 bytes allocated
+//    c.remover(2); // total heap usage: 4 allocs, 3 frees, 73,776 bytes allocated
+//    c.remover(5); // total heap usage: 4 allocs, 3 frees, 73,776 bytes allocated
+//    c.remover(1); // total heap usage: 4 allocs, 3 frees, 73,776 bytes allocated
 }
 
 
