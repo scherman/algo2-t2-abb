@@ -5,6 +5,8 @@
 
 using namespace std;
 
+//  g++ Conjunto.hpp tests.cpp && valgrind --leak-check=yes --show-leak-kinds=all ./a.out
+
 template<class T>
 class Conjunto {
 public:
@@ -122,8 +124,8 @@ Conjunto<T>::Nodo::Nodo(const T &v)
 
 template<class T>
 Conjunto<T>::Nodo::~Nodo(){
-    delete der;
-    delete izq;
+    delete der; // No hace falta preguntar si es null
+    delete izq; // No hace falta preguntar si es null
 }
 
 
@@ -157,7 +159,8 @@ void Conjunto<T>::insertar(const T &clave) {
         raiz_ = new Nodo(clave);
     } else {
         if (esHijo(padre, clave)) return;
-        engancharHoja(padre, new Nodo(clave));
+        Nodo* nuevo = new Nodo(clave);
+        engancharHoja(padre, nuevo);
     }
     cardinal_++;
 }
@@ -170,8 +173,15 @@ unsigned int Conjunto<T>::cardinal() const {
 template<class T>
 void Conjunto<T>::remover(const T &clave) {
     // Busco el nodo a eliminar y su padre.
+    if (raiz_ == NULL) return;
+    if (raiz_->valor == clave) {
+        delete raiz_;
+        raiz_ = NULL;
+        cardinal_--;
+        return;
+    }
     Nodo *padre = nodoPadre(clave, false);
-    if (padre == NULL) return;
+    if (padre == NULL) return; // La clave no existe
     Nodo *actual = clave > padre->valor ? padre->der : padre->izq;
 
     // Borro el nodo mediante el algoritmo correspondiente.
@@ -335,6 +345,7 @@ bool Conjunto<T>::esHijo(const typename Conjunto<T>::Nodo *padre, const T &clave
     if (padre == NULL) return false;
     if ( (padre->der != NULL) && (padre->der->valor == clave) ) return true;
     if ( (padre->izq != NULL) && (padre->izq->valor == clave) ) return true;
+    return false;
 }
 
 #endif // CONJUNTO_HPP_

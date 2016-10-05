@@ -33,6 +33,17 @@ void test_remover() {
 	// - Borrar una hoja
 	// - Borrar un nodo interno con un hijo
 	// - Borrrun nodo interno con dos hijos
+
+    Conjunto<int> b;
+    b.remover(44);
+    b.remover(42);
+
+    Conjunto<int> a;
+    a.insertar(42);
+    a.remover(44);
+    a.remover(42);
+    ASSERT(!(a.pertenece(42)))
+
 	Conjunto<int> c;
 	c.insertar(42);
 	c.insertar(44);
@@ -83,12 +94,23 @@ void test_minimo() {
     c.insertar(43);
     ASSERT(c.minimo() == -460);
 }
+void test_mleak() {
+    Conjunto<int> c; // total heap usage: 2 allocs, 1 frees, 73,728 bytes allocated
+    c.insertar(2); // total heap usage: 3 allocs, 2 frees, 73,752 bytes allocated
+    c.insertar(5); // total heap usage: 4 allocs, 3 frees, 73,776 bytes allocated
+    c.remover(2); // total heap usage: 4 allocs, 3 frees, 73,776 bytes allocated
+    c.remover(5); // total heap usage: 4 allocs, 3 frees, 73,776 bytes allocated
+    c.remover(1); // total heap usage: 4 allocs, 3 frees, 73,776 bytes allocated
+}
+
 
 int main() {
-	RUN_TEST(test_insertar);
-	RUN_TEST(test_cardinal);
-	RUN_TEST(test_remover);
-	RUN_TEST(test_maximo);
-	RUN_TEST(test_minimo);
+//	RUN_TEST(test_insertar);
+//	RUN_TEST(test_cardinal);
+//	RUN_TEST(test_remover);
+//	RUN_TEST(test_maximo);
+//	RUN_TEST(test_minimo);
+    RUN_TEST(test_mleak);
 	return 0;
 }
+
