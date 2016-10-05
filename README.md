@@ -1,34 +1,29 @@
-jscherman@jscherman:~/ClionProjects/algo2-t3-abb$ valgrind --leak-check=yes --track-origins=yes ./a.out 
-==22453== Memcheck, a memory error detector
-==22453== Copyright (C) 2002-2015, and GNU GPL'd, by Julian Seward et al.
-==22453== Using Valgrind-3.11.0 and LibVEX; rerun with -h for copyright info
-==22453== Command: ./a.out
-==22453== 
-test_insertar...ok
-test_cardinal...ok
-test_remover...ok
-test_maximo...{-460, -46, 42, 43, 44, 104, 130, 450}ok
-test_minimo...ok
-==22453== 
-==22453== HEAP SUMMARY:
-==22453==     in use at exit: 72,728 bytes in 2 blocks
-==22453==   total heap usage: 42 allocs, 40 frees, 78,600 bytes allocated
-==22453== 
-==22453== 24 bytes in 1 blocks are definitely lost in loss record 1 of 2
-==22453==    at 0x4C2E118: operator new(unsigned long) (vg_replace_malloc.c:333)
-==22453==    by 0x403679: Conjunto<int>::insertar(int const&) (in /home/jscherman/ClionProjects/algo2-t3-abb/a.out)
-==22453==    by 0x40220F: test_remover() (in /home/jscherman/ClionProjects/algo2-t3-abb/a.out)
-==22453==    by 0x4028E4: main (in /home/jscherman/ClionProjects/algo2-t3-abb/a.out)
-==22453== 
-==22453== LEAK SUMMARY:
-==22453==    definitely lost: 24 bytes in 1 blocks
-==22453==    indirectly lost: 0 bytes in 0 blocks
-==22453==      possibly lost: 0 bytes in 0 blocks
-==22453==    still reachable: 72,704 bytes in 1 blocks
-==22453==         suppressed: 0 bytes in 0 blocks
-==22453== Reachable blocks (those to which a pointer was found) are not shown.
-==22453== To see them, rerun with: --leak-check=full --show-leak-kinds=all
-==22453== 
-==22453== For counts of detected and suppressed errors, rerun with: -v
-==22453== ERROR SUMMARY: 1 errors from 1 contexts (suppressed: 0 from 0)
-
+jscherman@jscherman:~/ClionProjects/algo2-t3-abb$ g++ Conjunto.hpp tests.cpp && valgrind --leak-check=yes --show-leak-kinds=all ./a.out
+==2986== Memcheck, a memory error detector
+==2986== Copyright (C) 2002-2015, and GNU GPL'd, by Julian Seward et al.
+==2986== Using Valgrind-3.11.0 and LibVEX; rerun with -h for copyright info
+==2986== Command: ./a.out
+==2986== 
+test_mleak...ok
+==2986== 
+==2986== HEAP SUMMARY:
+==2986==     in use at exit: 72,704 bytes in 1 blocks
+==2986==   total heap usage: 4 allocs, 3 frees, 73,776 bytes allocated
+==2986== 
+==2986== 72,704 bytes in 1 blocks are still reachable in loss record 1 of 1
+==2986==    at 0x4C2DC10: malloc (vg_replace_malloc.c:299)
+==2986==    by 0x4EC3EFF: ??? (in /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.21)
+==2986==    by 0x40104E9: call_init.part.0 (dl-init.c:72)
+==2986==    by 0x40105FA: call_init (dl-init.c:30)
+==2986==    by 0x40105FA: _dl_init (dl-init.c:120)
+==2986==    by 0x4000CF9: ??? (in /lib/x86_64-linux-gnu/ld-2.23.so)
+==2986== 
+==2986== LEAK SUMMARY:
+==2986==    definitely lost: 0 bytes in 0 blocks
+==2986==    indirectly lost: 0 bytes in 0 blocks
+==2986==      possibly lost: 0 bytes in 0 blocks
+==2986==    still reachable: 72,704 bytes in 1 blocks
+==2986==         suppressed: 0 bytes in 0 blocks
+==2986== 
+==2986== For counts of detected and suppressed errors, rerun with: -v
+==2986== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)
