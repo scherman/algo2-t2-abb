@@ -105,21 +105,21 @@ void test_minimo() {
 void test_mleak() {
     // Corriendo valgrind al final de cada instruccion:
     Conjunto<int> c; // total heap usage: 2 allocs, 1 frees, 73,728 bytes allocated
-//    c.insertar(2); // total heap usage: 3 allocs, 2 frees, 73,752 bytes allocated
-//    c.insertar(5); // total heap usage: 4 allocs, 3 frees, 73,776 bytes allocated
-//    c.remover(2); // total heap usage: 4 allocs, 3 frees, 73,776 bytes allocated
-//    c.remover(5); // total heap usage: 4 allocs, 3 frees, 73,776 bytes allocated
-//    c.remover(1); // total heap usage: 4 allocs, 3 frees, 73,776 bytes allocated
+    c.insertar(2); // total heap usage: 3 allocs, 2 frees, 73,752 bytes allocated
+    c.insertar(5); // total heap usage: 4 allocs, 3 frees, 73,776 bytes allocated
+    c.remover(2); // total heap usage: 4 allocs, 3 frees, 73,776 bytes allocated
+    c.remover(5); // total heap usage: 4 allocs, 3 frees, 73,776 bytes allocated
+    c.remover(1); // total heap usage: 4 allocs, 3 frees, 73,776 bytes allocated
 }
 
 
 int main() {
 //	RUN_TEST(test_insertar);
-//	RUN_TEST(test_cardinal);
-//	RUN_TEST(test_remover);
+//	RUN_TEST(test_cardinal)
+  RUN_TEST(test_remover);
 //	RUN_TEST(test_maximo);
 //	RUN_TEST(test_minimo);
-    RUN_TEST(test_mleak);
+//    RUN_TEST(test_mleak);
 	return 0;
 }
 
