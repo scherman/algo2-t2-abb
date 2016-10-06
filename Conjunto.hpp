@@ -75,7 +75,7 @@ private:
      * Si la clave no existe y 'enganchar' es false, devuelve NULL.
      * Si el arbol es nil, devuelve NULL.
      */
-    Nodo* nodoPadre(const T& clave, const bool enganchar) const;
+    Nodo *nodoPadre(const T &clave, const bool enganchar) const;
 
     /*
      * Dado un nodo, devuelve un 0 <= m <= 2 que representa la cantidad de hijos.
@@ -110,7 +110,7 @@ private:
      * Requiere que nodo != NULL
      * Si padre es null, devuelve false
      */
-    bool esHijo(const Nodo* padre, const T& clave) const;
+    bool esHijo(const Nodo *padre, const T &clave) const;
 
 
 };
@@ -120,7 +120,7 @@ Conjunto<T>::Nodo::Nodo(const T &v)
         : valor(v), izq(NULL), der(NULL) {}
 
 template<class T>
-Conjunto<T>::Nodo::~Nodo(){
+Conjunto<T>::Nodo::~Nodo() {
     delete der;
     delete izq;
 }
@@ -138,7 +138,7 @@ template<class T>
 bool Conjunto<T>::pertenece(const T &clave) const {
     if (raiz_ == NULL) return false;
     if (raiz_->valor == clave) return true;
-    Nodo* padre = nodoPadre(clave, false);
+    Nodo *padre = nodoPadre(clave, false);
     return padre != NULL;
 }
 
@@ -152,7 +152,7 @@ void Conjunto<T>::insertar(const T &clave) {
         // Busco el padre al cual engancharlo
         Nodo *padre = nodoPadre(clave, true);
         if (esHijo(padre, clave)) return; // Si es hijo del padre, entonces ya existia. No hago nada
-        Nodo* nuevo = new Nodo(clave);
+        Nodo *nuevo = new Nodo(clave);
         engancharHoja(padre, nuevo);
     }
     cardinal_++;
@@ -201,8 +201,11 @@ void Conjunto<T>::remover(const T &clave) {
             actual->valor = min->valor;
 
             // Eliminar el nodo min original (sabemos que tiene 0 ó 1 hijos)
-            if (cantHijos(min) == 1) saltearNodo(minPadre, min);
-            if (cantHijos(min) == 0) desengancharHoja(minPadre, min);
+            if (cantHijos(min) == 1) {
+                saltearNodo(minPadre, min);
+            } else if (cantHijos(min) == 0) {
+                desengancharHoja(minPadre, min);
+            }
             delete min;
             break;
     }
@@ -211,8 +214,8 @@ void Conjunto<T>::remover(const T &clave) {
 
 template<class T>
 const T &Conjunto<T>::minimo() const {
-    Nodo* min = raiz_;
-    while(min != NULL) {
+    Nodo *min = raiz_;
+    while (min != NULL) {
         if (min->izq == NULL) return min->valor;
         min = min->izq;
     }
@@ -235,8 +238,8 @@ void Conjunto<T>::mostrar(std::ostream &os) const {
 }
 
 template<class T>
-typename Conjunto<T>::Nodo* Conjunto<T>::nodoPadre(const T& clave, const bool enganchar) const {
-    Nodo* padre = raiz_;
+typename Conjunto<T>::Nodo *Conjunto<T>::nodoPadre(const T &clave, const bool enganchar) const {
+    Nodo *padre = raiz_;
     while (padre != NULL) {
         if (clave > padre->valor) {
             if (padre->der == NULL) {
@@ -254,7 +257,7 @@ typename Conjunto<T>::Nodo* Conjunto<T>::nodoPadre(const T& clave, const bool en
             }
             if (clave == padre->izq->valor) return padre; // Encontre el nodo
             padre = padre->izq;
-        } else if (clave == padre->valor){
+        } else if (clave == padre->valor) {
             return NULL;
         }
     }
@@ -282,7 +285,7 @@ void Conjunto<T>::saltearNodo(typename Conjunto<T>::Nodo *padre, typename Conjun
             nodo->der = NULL;
         } else {
             // el hijo de nodo esta del lado izquierdo
-            raiz_  = nodo->izq;
+            raiz_ = nodo->izq;
             nodo->izq = NULL;
         }
     } else {
@@ -350,9 +353,8 @@ void Conjunto<T>::engancharHoja(typename Conjunto<T>::Nodo *padre, typename Conj
 }
 
 
-
 template<class T>
-void Conjunto<T>::inOrder(std::ostream &os, typename Conjunto<T>::Nodo *nodo) const{
+void Conjunto<T>::inOrder(std::ostream &os, typename Conjunto<T>::Nodo *nodo) const {
     if (nodo == NULL) return;
     if (nodo->izq != NULL) {
         inOrder(os, nodo->izq);
@@ -366,10 +368,10 @@ void Conjunto<T>::inOrder(std::ostream &os, typename Conjunto<T>::Nodo *nodo) co
 }
 
 template<class T>
-bool Conjunto<T>::esHijo(const typename Conjunto<T>::Nodo *padre, const T &clave) const{
+bool Conjunto<T>::esHijo(const typename Conjunto<T>::Nodo *padre, const T &clave) const {
     if (padre == NULL) return false;
-    if ( (padre->der != NULL) && (padre->der->valor == clave) ) return true;
-    if ( (padre->izq != NULL) && (padre->izq->valor == clave) ) return true;
+    if ((padre->der != NULL) && (padre->der->valor == clave)) return true;
+    if ((padre->izq != NULL) && (padre->izq->valor == clave)) return true;
     return false;
 }
 

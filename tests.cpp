@@ -34,21 +34,21 @@ void test_remover() {
 	// - Borrar un nodo interno con un hijo
 	// - Borrrun nodo interno con dos hijos
 
-    Conjunto<int> b;
-    b.remover(44);
-    b.remover(42);
-    ASSERT(b.cardinal() == 0);
-    b.insertar(5);
-    b.insertar(7);
-    b.insertar(3);
-    b.remover(5);
-    ASSERT(!(b.pertenece(5)) && (b.cardinal() == 2))
-
-    Conjunto<int> a;
-    a.insertar(42);
-    a.remover(44);
-    a.remover(42);
-    ASSERT(!(a.pertenece(42)))
+//    Conjunto<int> b;
+//    b.remover(44);
+//    b.remover(42);
+//    ASSERT(b.cardinal() == 0);
+//    b.insertar(5);
+//    b.insertar(7);
+//    b.insertar(3);
+//    b.remover(5);
+//    ASSERT(!(b.pertenece(5)) && (b.cardinal() == 2))
+//
+//    Conjunto<int> a;
+//    a.insertar(42);
+//    a.remover(44);
+//    a.remover(42);
+//    ASSERT(!(a.pertenece(42)))
 
 	Conjunto<int> c;
 	c.insertar(42);
