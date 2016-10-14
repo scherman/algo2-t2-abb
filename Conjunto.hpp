@@ -62,6 +62,11 @@ private:
         Nodo *der;
     };
 
+    struct Familia {
+        Nodo *padre;
+        Nodo *actual;
+    };
+
     // puntero a la raíz de nuestro árbol.
     Nodo *raiz_;
     int cardinal_;
@@ -70,12 +75,11 @@ private:
 
 
     /*
-     * Ubica al nodo cuyo valor es 'clave' y devuelve a su padre
-     * Si la clave no existe y 'enganchar' es true, devuelve al padre al cual se engancharía.
-     * Si la clave no existe y 'enganchar' es false, devuelve NULL.
-     * Si el arbol es nil, devuelve NULL.
+     * Ubica al nodo cuyo valor es 'clave' y a su padre
+     * Si la clave existe, padre != NULL, a menos que sea la raiz.
+     * Si la clave NO existe, padre != NULL, a menos el arbol sea nil.
      */
-    Nodo *nodoPadre(const T &clave, const bool enganchar) const;
+    Familia buscarNodo(const T &clave) const;
 
     /*
      * Dado un nodo, devuelve un 0 <= m <= 2 que representa la cantidad de hijos.
@@ -116,11 +120,13 @@ private:
 };
 
 template<class T>
-Conjunto<T>::Nodo::Nodo(const T &v)
-        : valor(v), izq(NULL), der(NULL) {}
+Conjunto<T>::Nodo::Nodo(const T &v): valor(v), izq(NULL), der(NULL) {
+//    std::cout << "Nodo creado " << this << std::endl;
+}
 
 template<class T>
 Conjunto<T>::Nodo::~Nodo() {
+//    std::cout << "Nodo destruido " << this << std::endl;
     delete der;
     delete izq;
 }
@@ -136,25 +142,17 @@ Conjunto<T>::~Conjunto() {
 
 template<class T>
 bool Conjunto<T>::pertenece(const T &clave) const {
-    if (raiz_ == NULL) return false;
-    if (raiz_->valor == clave) return true;
-    Nodo *padre = nodoPadre(clave, false);
-    return padre != NULL;
+    Familia familia = buscarNodo(clave);
+    if (familia.padre != NULL && familia.padre->valor == clave) return true;
+    if (familia.actual!= NULL && familia.actual->valor == clave) return true;
+    return  false;
 }
 
 template<class T>
 void Conjunto<T>::insertar(const T &clave) {
-    if (raiz_ == NULL) {
-        raiz_ = new Nodo(clave); // Si el arbol es nil, lo pongo como raiz
-    } else {
-        if (raiz_->valor == clave) return; // Si la raiz es la clave, no hago nada
-
-        // Busco el padre al cual engancharlo
-        Nodo *padre = nodoPadre(clave, true);
-        if (esHijo(padre, clave)) return; // Si es hijo del padre, entonces ya existia. No hago nada
-        Nodo *nuevo = new Nodo(clave);
-        engancharHoja(padre, nuevo);
-    }
+    Familia familia = buscarNodo(clave);
+    if (familia.actual != NULL) return; // Ya existe, no hago nada
+    engancharHoja(familia.padre, new Nodo(clave));
     cardinal_++;
 }
 
@@ -165,32 +163,23 @@ unsigned int Conjunto<T>::cardinal() const {
 
 template<class T>
 void Conjunto<T>::remover(const T &clave) {
-    if (raiz_ == NULL) return;
-
     // Busco el nodo cuyo valor es 'clave' y su padre
-    Nodo *padre, *actual;
-    if (raiz_->valor == clave) {
-        padre = NULL;
-        actual = raiz_;
-    } else {
-        padre = nodoPadre(clave, false);
-        if (padre == NULL) return; // No existe la clave
-        actual = clave > padre->valor ? padre->der : padre->izq;
-    }
+    Familia familia = buscarNodo(clave);
+    if (familia.actual == NULL) return; // La clave no existe
 
     // Borro el nodo mediante el algoritmo correspondiente.
-    switch (cantHijos(actual)) {
+    switch (cantHijos(familia.actual)) {
         case 0:
-            desengancharHoja(padre, actual);
-            delete actual;
+            desengancharHoja(familia.padre, familia.actual);
+            delete familia.actual;
             break;
         case 1:
-            saltearNodo(padre, actual);
-            delete actual;
+            saltearNodo(familia.padre, familia.actual);
+            delete familia.actual;
             break;
         case 2:
             // Busco min en el subarbol derecho y lo pongo en actual
-            Nodo *minPadre = actual;
+            Nodo *minPadre = familia.actual;
             Nodo *min = minPadre->der;
             while (min != NULL) {
                 if (min->izq == NULL) break;
@@ -198,7 +187,7 @@ void Conjunto<T>::remover(const T &clave) {
                 min = min->izq;
             }
             if (min == NULL) min = minPadre;
-            actual->valor = min->valor;
+            familia.actual->valor = min->valor;
 
             // Eliminar el nodo min original (sabemos que tiene 0 ó 1 hijos)
             if (cantHijos(min) == 1) {
@@ -238,30 +227,37 @@ void Conjunto<T>::mostrar(std::ostream &os) const {
 }
 
 template<class T>
-typename Conjunto<T>::Nodo *Conjunto<T>::nodoPadre(const T &clave, const bool enganchar) const {
-    Nodo *padre = raiz_;
-    while (padre != NULL) {
-        if (clave > padre->valor) {
-            if (padre->der == NULL) {
-                // La clave no existe
-                if (enganchar) return padre;
-                return NULL;
+typename Conjunto<T>::Familia Conjunto<T>::buscarNodo(const T &clave) const {
+    Familia familia;
+    if (raiz_ != NULL && raiz_->valor == clave) {
+        // La clave esta en la raiz
+        familia.padre = NULL;
+        familia.actual = raiz_;
+    } else {
+        // La clave NO esta en la raiz
+        familia.padre = raiz_;
+        familia.actual = NULL;
+    }
+    while (familia.padre != NULL) {
+        if (clave > familia.padre->valor) {
+            if (familia.padre->der == NULL) break; // No existe
+            if (clave == familia.padre->der->valor) {
+                // Lo encontre
+                familia.actual = familia.padre->der;
+                break;
             }
-            if (clave == padre->der->valor) return padre; // Encontre el nodo
-            padre = padre->der;
-        } else if (clave < padre->valor) {
-            if (padre->izq == NULL) {
-                // La clave no existe
-                if (enganchar) return padre;
-                return NULL;
+            familia.padre = familia.padre->der; // Sigo recorriendo
+        } else if (clave < familia.padre->valor) {
+            if (familia.padre->izq == NULL) break; // No existe
+            if (clave == familia.padre->izq->valor) {
+                // Lo encontre
+                familia.actual = familia.padre->izq;
+                break;
             }
-            if (clave == padre->izq->valor) return padre; // Encontre el nodo
-            padre = padre->izq;
-        } else if (clave == padre->valor) {
-            return NULL;
+            familia.padre = familia.padre->izq; // Sigo recorriendo
         }
     }
-    return NULL;
+    return familia;
 }
 
 
